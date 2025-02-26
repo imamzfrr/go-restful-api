@@ -10,7 +10,7 @@ import (
 
 // NewDB initializes the database connection using GORM
 func NewDB() *gorm.DB {
-	dsn := "root:@tcp(localhost:3306)/go_restful_api?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:Rt0011Rw007@tcp(localhost:3306)/struct_db?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info), // Logging SQL queries
 	})
