@@ -21,7 +21,7 @@ func main() {
 	db := app.NewDB()
 
 	// Run Auto Migration (Opsional, bisa dihapus jika tidak diperlukan)
-	err := db.AutoMigrate(&domain.Category{})
+	err := db.AutoMigrate(&domain.Category{}, &domain.Customer{}, &domain.Product{}, &domain.Employee{})
 	helper.PanicIfError(err)
 
 	// Initialize Validator
@@ -44,14 +44,11 @@ func main() {
 
 	// Initialize Repository, Service, and Controller for Product
 	productRepository := repository.NewProductRepository(db)
-	productService := service.NewProductService(productRepository)
+	productService := service.NewProductService(productRepository, validate)
 	productController := controller.NewProductController(productService)
 
 	// Setup Routes
-	app.NewRouter(server, categoryController)
-	app.NewRouter(server, customerController)
-	app.NewRouter(server, employeeController)
-	app.NewRouter(server, productController)
+	app.NewRouter(server, categoryController, customerController, employeeController, productController)
 
 	// Start Server
 	log.Println("Server running on port 8080")

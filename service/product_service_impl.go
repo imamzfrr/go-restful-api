@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/aronipurwanto/go-restful-api/exception"
 	"github.com/aronipurwanto/go-restful-api/helper"
@@ -14,14 +15,21 @@ import (
 
 type ProductServiceImpl struct {
 	ProductRepository repository.ProductRepository
+	Validate          *validator.Validate
 }
 
-func NewProductService(productRepository repository.ProductRepository) ProductService {
-	return &ProductServiceImpl{ProductRepository: productRepository}
+func NewProductService(productRepository repository.ProductRepository, validate *validator.Validate) ProductService {
+	return &ProductServiceImpl{ProductRepository: productRepository, Validate: validate}
 }
 
 // Create Product
 func (service *ProductServiceImpl) Create(ctx context.Context, request web.ProductCreateRequest) (web.ProductResponse, error) {
+	// Validasi request sebelum menyimpan ke database
+	err := service.Validate.Struct(request)
+	if err != nil {
+		return web.ProductResponse{}, err
+	}
+
 	product := domain.Product{
 		Name:        request.Name,
 		Description: request.Description,
@@ -31,6 +39,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request web.Produ
 		SKU:         request.SKU,
 		TaxRate:     request.TaxRate,
 	}
+
 	newProduct, err := service.ProductRepository.Save(ctx, product)
 	if err != nil {
 		return web.ProductResponse{}, err
